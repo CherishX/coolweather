@@ -14,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.coolweather.R;
+import com.android.coolweather.receiver.AutoUpdateWeatherReceiver;
+import com.android.coolweather.service.AutoUpdateWeatherService;
 import com.android.coolweather.util.HttpCallbackListener;
 import com.android.coolweather.util.HttpUtil;
 import com.android.coolweather.util.Utility;
@@ -73,12 +75,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener
         cityNameText.setText(prefs.getString("city_name",""));
         temp1Text.setText(prefs.getString("temp1",""));
         temp2Text.setTag(prefs.getString("temp2", ""));
-        publishText.setText("今天" + prefs.getString("publish_time","") + "发布");
-        weatherDespText.setText(prefs.getString("weather_desp",""));
+        publishText.setText("今天" + prefs.getString("publish_time", "") + "发布");
+        weatherDespText.setText(prefs.getString("weather_desp", ""));
         currentDateText.setText(prefs.getString("current_date",""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
-
+        Intent intent = new Intent(this, AutoUpdateWeatherService.class);
+        startService(intent);
 
     }
 
@@ -123,7 +126,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener
                 }else if("weatherCode".equals(type)){
                     // 解析处理服务器返回的天气信息（JSON数据），存储在SharedPreferences中
                     Utility.handleWeatherResponse(WeatherActivity.this,response);
-                    //将天气新显示在主线程上（UI线程）
+                    //将天气显示在主线程上（UI线程）
                     runOnUiThread(new Runnable()
                     {
                         @Override
