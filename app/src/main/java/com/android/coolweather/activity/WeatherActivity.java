@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.android.coolweather.R;
 import com.android.coolweather.receiver.AutoUpdateWeatherReceiver;
 import com.android.coolweather.service.AutoUpdateWeatherService;
+import com.android.coolweather.util.ActivityCollector;
 import com.android.coolweather.util.HttpCallbackListener;
 import com.android.coolweather.util.HttpUtil;
 import com.android.coolweather.util.Utility;
@@ -40,6 +41,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_layout);
+        ActivityCollector.addActivity(this);
         //初始化各控件
         cityNameText = (TextView)findViewById(R.id.city_name);
         publishText = (TextView)findViewById(R.id.publish_text);
@@ -93,7 +95,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener
         String address = "http://www.weather.com.cn/data/list3/city" +
                 countryCode + ".xml";
         //根据县级代号找到对应地址接口，然后从服务器中查询天气代号所对应的天气
-        queryFromServer(address,"countryCode");
+        queryFromServer(address, "countryCode");
     }
     /**
      * 查询天气代号所对应的天气。
@@ -114,18 +116,22 @@ public class WeatherActivity extends Activity implements View.OnClickListener
             @Override
             public void onFinish(String response)
             {
-                if("countryCode".equals(type)){
-                    if(!TextUtils.isEmpty(response)){
+                if ("countryCode".equals(type))
+                {
+                    if (!TextUtils.isEmpty(response))
+                    {
                         String[] array = response.split("\\|");
-                        if(array != null && array.length == 2){
+                        if (array != null && array.length == 2)
+                        {
                             String weatherCode = array[1];
                             //从服务器中查询天气代号所对应的天气
                             queryWeatherInfo(weatherCode);
                         }
                     }
-                }else if("weatherCode".equals(type)){
+                } else if ("weatherCode".equals(type))
+                {
                     // 解析处理服务器返回的天气信息（JSON数据），存储在SharedPreferences中
-                    Utility.handleWeatherResponse(WeatherActivity.this,response);
+                    Utility.handleWeatherResponse(WeatherActivity.this, response);
                     //将天气显示在主线程上（UI线程）
                     runOnUiThread(new Runnable()
                     {
@@ -141,14 +147,14 @@ public class WeatherActivity extends Activity implements View.OnClickListener
             @Override
             public void onError(Exception e)
             {
-               runOnUiThread(new Runnable()
-               {
-                   @Override
-                   public void run()
-                   {
-                       publishText.setText("天气更新失败");
-                   }
-               });
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        publishText.setText("天气更新失败");
+                    }
+                });
             }
         });
     }
@@ -174,5 +180,18 @@ public class WeatherActivity extends Activity implements View.OnClickListener
            default:
                break;
        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(WeatherActivity.this,ChooseAreaActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollector.removeActivity(this);
     }
 }

@@ -20,6 +20,7 @@ import com.android.coolweather.model.City;
 import com.android.coolweather.model.CoolWeatherDB;
 import com.android.coolweather.model.Country;
 import com.android.coolweather.model.Province;
+import com.android.coolweather.util.ActivityCollector;
 import com.android.coolweather.util.HttpCallbackListener;
 import com.android.coolweather.util.HttpUtil;
 import com.android.coolweather.util.Utility;
@@ -53,7 +54,7 @@ public class ChooseAreaActivity extends Activity
 
     private int currentLevel;//当前选中的级别
 
-    /**
+   /**
      * 是否从WeatherActivity中跳转过来。
      */
     private boolean isFromWeatherActivity;
@@ -62,6 +63,7 @@ public class ChooseAreaActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity",false);
         //一开始先从SharedPreferences 文件中读取city_selected 标志位，
         // 如果为true 就说明当前已经选择过城市了，直接跳转到WeatherActivity 即可
@@ -73,7 +75,7 @@ public class ChooseAreaActivity extends Activity
             finish();
             return;
         }
-
+        ActivityCollector.addActivity(this);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
 
@@ -271,6 +273,9 @@ public class ChooseAreaActivity extends Activity
             queryCities();
         }else if(currentLevel == LEVEL_CITY){
             queryProvinces();
+        }else if(currentLevel == LEVEL_PROVINCE){
+            Intent i = new Intent(this,LoginActivity.class);
+            startActivity(i);
         }else{
             if(isFromWeatherActivity){
                 Intent intent = new Intent(this,WeatherActivity.class);
@@ -279,5 +284,10 @@ public class ChooseAreaActivity extends Activity
             finish();//退出ChooseAreaActivity
         }
 
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollector.removeActivity(this);
     }
 }
