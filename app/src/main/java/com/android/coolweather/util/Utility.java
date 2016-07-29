@@ -1,11 +1,20 @@
 package com.android.coolweather.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.android.coolweather.model.City;
 import com.android.coolweather.model.CoolWeatherDB;
 import com.android.coolweather.model.Country;
 import com.android.coolweather.model.Province;
+
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * 该工具类用于解析和处理服务器返回的省市县数据
@@ -76,5 +85,41 @@ public class Utility
         return true;
     }
 
+    /**
+     * 解析服务器返回的JSON数据，并将解析出的数据存储到本地。
+     */
+    public synchronized static void handleWeatherResponse(Context context,String response){
+        try{
+            JSONObject weatherInfo = new JSONObject(response).getJSONObject("weatherInfo");
+            String cityName = weatherInfo.getString("city");
+            String weatherCode = weatherInfo.getString("cityid");
+            String temp1 = weatherInfo.getString("temp1");
+            String temp2 = weatherInfo.getString("temp2");
+            String weatherDesp = weatherInfo.getString("weather");
+            String publishTime = weatherInfo.getString("ptime");
+            saveWeatherInfo(context,cityName,weatherCode,temp1,temp2,weatherDesp,publishTime);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 将服务器返回的所有天气信息存储到SharedPreferences文件中。
+     */
+    private static void saveWeatherInfo(Context context,String cityName,String weatherCode,
+                                        String temp1,String temp2,String weatherDesp,String publishTime){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyy年M月d日", Locale.CANADA);
+        SharedPreferences.Editor spEditor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        spEditor.putBoolean("city_selected",true);
+        spEditor.putString("city_name", cityName);
+        spEditor.putString("weather_code", weatherCode);
+        spEditor.putString("temp1", temp1);
+        spEditor.putString("temp2", temp2);
+        spEditor.putString("weather_desp", weatherDesp);
+        spEditor.putString("publish_time",publishTime);
+        spEditor.putString("current_day",sdf.format(new Date()));
+        spEditor.commit();
+    }
 
 }
