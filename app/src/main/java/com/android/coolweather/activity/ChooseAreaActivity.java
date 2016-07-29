@@ -12,7 +12,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +49,7 @@ public class ChooseAreaActivity extends Activity
 
     private Province selectedProvince;//选中的省份
     private City selectedCity;//选中的城市
-    private Country eslectedCountry;//选中的县城
+    private Country slectedCountry;//选中的县城
 
     private int currentLevel;//当前选中的级别
 
@@ -85,27 +84,31 @@ public class ChooseAreaActivity extends Activity
         mAreaListView.setAdapter(mShowAreaAdapter);
 
         mCoolWeatherDB = CoolWeatherDB.getInstance(this);
+        queryProvinces(); // 加载省级数据
         mAreaListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
             {
-                if(currentLevel == LEVEL_PROVINCE){
+                if (currentLevel == LEVEL_PROVINCE)
+                {
                     selectedProvince = mProvinceList.get(i);
                     queryCities();
-                }else if(currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY)
+                {
                     selectedCity = mCityList.get(i);
                     queryCountries();
-                }else if(currentLevel == LEVEL_COUNTRY){
+                } else if (currentLevel == LEVEL_COUNTRY)
+                {
                     String countryCode = mCountryList.get(i).getCountryCode();
-                    Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
-                    intent.putExtra("country_code",countryCode);
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    intent.putExtra("country_code", countryCode);
                     startActivity(intent);
                     finish();
                 }
             }
         });
-        queryProvinces(); // 加载省级数据
+
     }
 
     /**
@@ -114,7 +117,7 @@ public class ChooseAreaActivity extends Activity
     private void queryProvinces()
     {
         mProvinceList = mCoolWeatherDB.loadProvinces();
-        if(mProvinceList != null || mProvinceList.size()>0){
+        if(mProvinceList.size()>0){
             mAreaDataList.clear();
             for(Province province:mProvinceList){
                 mAreaDataList.add(province.getProvinceName());
@@ -134,8 +137,8 @@ public class ChooseAreaActivity extends Activity
      */
     private void queryCountries()
     {
-        mCountryList = mCoolWeatherDB.loadCountries();
-        if(mCountryList != null || mCountryList.size()>0){
+        mCountryList = mCoolWeatherDB.loadCountries(selectedCity.getId());
+        if(mCountryList.size()>0){
             mAreaDataList.clear();
             for(Country country:mCountryList){
                 mAreaDataList.add(country.getCountryName());
@@ -153,8 +156,8 @@ public class ChooseAreaActivity extends Activity
      */
     private void queryCities()
     {
-        mCityList = mCoolWeatherDB.loadCities();
-        if(mCityList != null || mCityList.size()>0){
+        mCityList = mCoolWeatherDB.loadCities(selectedProvince.getId());
+        if(mCityList.size()>0){
             mAreaDataList.clear();
             for(City city:mCityList){
                 mAreaDataList.add(city.getCityName());

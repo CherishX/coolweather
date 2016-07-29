@@ -57,7 +57,7 @@ public class CoolWeatherDB
     public List<Province> loadProvinces(){
         List<Province> provinceList = new ArrayList<Province>();
         Cursor cursor = sqLiteDatabase.query("Province",null,null,null,null,null,null);
-        if(cursor.moveToNext()){
+        if(cursor.moveToFirst()){
             do{
                 Province province = new Province();
                 province.setId(cursor.getInt(cursor.getColumnIndex("id")));
@@ -84,15 +84,16 @@ public class CoolWeatherDB
     /**
      * 从数据库中读取所有城市信息
      */
-    public List<City> loadCities(){
+    public List<City> loadCities(int provinceId){
         List<City> cityList = new ArrayList<City>();
-        Cursor cursor = sqLiteDatabase.query("City",null,null,null,null,null,null);
-        if(cursor.moveToNext()){
+        Cursor cursor = sqLiteDatabase.query("City",null,"province_id = ?",new String[] { String.valueOf(provinceId) },null,null,null);
+        if(cursor.moveToFirst()){
             do{
                 City city = new City();
+                city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                 city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
-                city.setProvinceId(cursor.getInt(cursor.getColumnIndex("province_id")));
+                city.setProvinceId(provinceId);
                 cityList.add(city);
             }while(cursor.moveToNext());
         }
@@ -108,21 +109,22 @@ public class CoolWeatherDB
             contentValues.put("country_name",country.getCountryName());
             contentValues.put("country_code",country.getCountryCode());
             contentValues.put("city_id",country.getCityId());
-            sqLiteDatabase.insert("Country",null,contentValues);
+            sqLiteDatabase.insert("Country", null , contentValues);
         }
     }
     /**
      * 从数据库中读取所有Country信息
      */
-    public List<Country> loadCountries(){
-        List<Country> countryList = new ArrayList<Country>();
-        Cursor cursor = sqLiteDatabase.query("Country",null,null,null,null,null,null);
-        if(cursor.moveToNext()){
+    public List<Country> loadCountries(int cityId){
+        List<Country> countryList = new ArrayList<>();
+        Cursor cursor = sqLiteDatabase.query("Country", null, "city_id = ?", new String[] { String.valueOf(cityId) }, null, null, null);
+        if(cursor.moveToFirst()){
             do{
                 Country country = new Country();
+                country.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 country.setCountryName(cursor.getString(cursor.getColumnIndex("country_name")));
                 country.setCountryCode(cursor.getString(cursor.getColumnIndex("country_code")));
-                country.setCityId(cursor.getInt(cursor.getColumnIndex("city_id")));
+                country.setCityId(cityId);
                 countryList.add(country);
             }while(cursor.moveToNext());
         }

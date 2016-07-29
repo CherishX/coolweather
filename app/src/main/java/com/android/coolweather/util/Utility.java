@@ -77,6 +77,7 @@ public class Utility
                     country.setCountryCode(array[0]);
                     country.setCountryName(array[1]);
                     country.setCityId(cityId);
+                    // 将解析出来的数据存储到County表
                     coolWeatherDB.saveCountries(country);
                 }
                 return true;
@@ -90,7 +91,7 @@ public class Utility
      */
     public synchronized static void handleWeatherResponse(Context context,String response){
         try{
-            JSONObject weatherInfo = new JSONObject(response).getJSONObject("weatherInfo");
+            JSONObject weatherInfo = new JSONObject(response).getJSONObject("weatherinfo");
             String cityName = weatherInfo.getString("city");
             String weatherCode = weatherInfo.getString("cityid");
             String temp1 = weatherInfo.getString("temp1");
@@ -109,7 +110,7 @@ public class Utility
      */
     private static void saveWeatherInfo(Context context,String cityName,String weatherCode,
                                         String temp1,String temp2,String weatherDesp,String publishTime){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyy年M月d日", Locale.CANADA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
         SharedPreferences.Editor spEditor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         spEditor.putBoolean("city_selected",true);
         spEditor.putString("city_name", cityName);
@@ -118,7 +119,7 @@ public class Utility
         spEditor.putString("temp2", temp2);
         spEditor.putString("weather_desp", weatherDesp);
         spEditor.putString("publish_time",publishTime);
-        spEditor.putString("current_day",sdf.format(new Date()));
+        spEditor.putString("current_date",sdf.format(new Date()));
         spEditor.commit();
     }
 

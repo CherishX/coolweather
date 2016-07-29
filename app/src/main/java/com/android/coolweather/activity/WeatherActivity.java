@@ -47,7 +47,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener
         temp1Text = (TextView)findViewById(R.id.temp1);
         temp2Text = (TextView)findViewById(R.id.temp2);
         currentDateText = (TextView)findViewById(R.id.current_date);
-
+        weatherInfoLayout = (LinearLayout)findViewById(R.id.weather_info_layout);
         switchCity = (Button)findViewById(R.id.switch_city);
         refreshWeather = (Button)findViewById(R.id.refresh_weather);
 
@@ -74,7 +74,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         cityNameText.setText(prefs.getString("city_name",""));
         temp1Text.setText(prefs.getString("temp1",""));
-        temp2Text.setTag(prefs.getString("temp2", ""));
+        temp2Text.setText(prefs.getString("temp2", ""));
         publishText.setText("今天" + prefs.getString("publish_time", "") + "发布");
         weatherDespText.setText(prefs.getString("weather_desp", ""));
         currentDateText.setText(prefs.getString("current_date",""));
